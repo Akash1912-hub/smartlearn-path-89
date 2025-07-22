@@ -1,37 +1,21 @@
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { Star, Clock, Users, BookOpen, Play, Heart, ShoppingCart } from "lucide-react";
-import coursesImage from "@/assets/courses-grid.jpg";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Star, Clock, Users, BookOpen, Play, Heart, ShoppingCart, Search, Filter } from 'lucide-react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import coursesImage from '@/assets/courses-grid.jpg';
 
-const FeaturedCourses = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const { toast } = useToast();
+const Courses = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
 
-  const handleEnrollment = (courseTitle: string) => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    
-    toast({
-      title: "Course enrollment",
-      description: `You've been enrolled in "${courseTitle}"!`,
-    });
-  };
-
-  const handleWishlist = (courseTitle: string) => {
-    toast({
-      title: "Added to wishlist",
-      description: `"${courseTitle}" has been added to your wishlist.`,
-    });
-  };
   const courses = [
     {
       id: 1,
@@ -108,8 +92,71 @@ const FeaturedCourses = () => {
       description: "Design beautiful interfaces with Figma, Adobe XD, and learn UX principles.",
       topics: ["Figma", "Adobe XD", "User Research", "Prototyping"],
       isLive: false
+    },
+    {
+      id: 5,
+      title: "Advanced React Development",
+      instructor: "John Smith",
+      instructorAvatar: "",
+      rating: 4.8,
+      students: 7543,
+      duration: "28 hours",
+      price: 99.99,
+      originalPrice: 219.99,
+      level: "Advanced",
+      category: "Web Development",
+      progress: 0,
+      isEnrolled: false,
+      thumbnail: coursesImage,
+      description: "Deep dive into React hooks, context, performance optimization, and testing.",
+      topics: ["React Hooks", "Context API", "Performance", "Testing"],
+      isLive: false
+    },
+    {
+      id: 6,
+      title: "Data Science with Python",
+      instructor: "Dr. Lisa Anderson",
+      instructorAvatar: "",
+      rating: 4.7,
+      students: 11234,
+      duration: "45 hours",
+      price: 119.99,
+      originalPrice: 259.99,
+      level: "Intermediate",
+      category: "AI & Data Science",
+      progress: 0,
+      isEnrolled: false,
+      thumbnail: coursesImage,
+      description: "Learn data analysis, visualization, and machine learning with Python.",
+      topics: ["Pandas", "NumPy", "Matplotlib", "Scikit-learn"],
+      isLive: false
     }
   ];
+
+  const categories = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'Web Development', label: 'Web Development' },
+    { value: 'AI & Data Science', label: 'AI & Data Science' },
+    { value: 'Marketing', label: 'Marketing' },
+    { value: 'Design', label: 'Design' }
+  ];
+
+  const levels = [
+    { value: 'all', label: 'All Levels' },
+    { value: 'Beginner', label: 'Beginner' },
+    { value: 'Intermediate', label: 'Intermediate' },
+    { value: 'Advanced', label: 'Advanced' }
+  ];
+
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         course.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'all' || course.level === selectedLevel;
+    
+    return matchesSearch && matchesCategory && matchesLevel;
+  });
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -131,23 +178,67 @@ const FeaturedCourses = () => {
   };
 
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <Badge className="mb-4" variant="secondary">
-            Featured Courses
-          </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Popular Courses to
-            <span className="block text-primary">Get You Started</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of students learning from industry experts in our most popular courses.
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-4">All Courses</h1>
+          <p className="text-xl text-muted-foreground">
+            Discover our complete collection of courses and find your next learning adventure.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {courses.map((course) => (
+        {/* Filters */}
+        <div className="mb-8 bg-card rounded-lg p-6 shadow-card">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search courses, instructors, or topics..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {levels.map((level) => (
+                    <SelectItem key={level.value} value={level.value}>
+                      {level.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="mt-4 text-sm text-muted-foreground">
+            Showing {filteredCourses.length} of {courses.length} courses
+          </div>
+        </div>
+
+        {/* Course Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCourses.map((course) => (
             <Card key={course.id} className="overflow-hidden hover:shadow-elegant transition-all duration-300 group">
               <div className="relative">
                 <img 
@@ -161,12 +252,7 @@ const FeaturedCourses = () => {
                   </Badge>
                 )}
                 <div className="absolute top-4 right-4 flex space-x-2">
-                  <Button 
-                    size="icon" 
-                    variant="secondary" 
-                    className="h-8 w-8 backdrop-blur-sm"
-                    onClick={() => handleWishlist(course.title)}
-                  >
+                  <Button size="icon" variant="secondary" className="h-8 w-8 backdrop-blur-sm">
                     <Heart className="h-4 w-4" />
                   </Button>
                 </div>
@@ -248,14 +334,14 @@ const FeaturedCourses = () => {
                   </div>
                   
                   {course.isEnrolled ? (
-                    <Button className="ml-4" onClick={() => navigate('/courses')}>
+                    <Button className="ml-4">
                       <Play className="mr-2 h-4 w-4" />
-                      Continue Learning
+                      Continue
                     </Button>
                   ) : (
-                    <Button className="ml-4" onClick={() => handleEnrollment(course.title)}>
+                    <Button className="ml-4">
                       <ShoppingCart className="mr-2 h-4 w-4" />
-                      Enroll Now
+                      Enroll
                     </Button>
                   )}
                 </div>
@@ -264,15 +350,20 @@ const FeaturedCourses = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" onClick={() => navigate('/courses')}>
-            <BookOpen className="mr-2 h-5 w-5" />
-            View All Courses
-          </Button>
-        </div>
+        {filteredCourses.length === 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No courses found</h3>
+            <p className="text-muted-foreground">
+              Try adjusting your search criteria or browse all courses.
+            </p>
+          </div>
+        )}
       </div>
-    </section>
+      
+      <Footer />
+    </div>
   );
 };
 
-export default FeaturedCourses;
+export default Courses;

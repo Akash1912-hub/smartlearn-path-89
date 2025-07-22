@@ -1,10 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Star, Users, BookOpen, Clock, Award } from "lucide-react";
 import heroImage from "@/assets/hero-education.jpg";
+import { useAuth } from "@/hooks/useAuth";
 
 const Hero = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
       {/* Background Image with Overlay */}
@@ -70,14 +74,19 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="text-lg px-8 py-6 shadow-glow hover:shadow-xl transition-all duration-300">
+            <Button 
+              size="lg" 
+              className="text-lg px-8 py-6 shadow-glow hover:shadow-xl transition-all duration-300"
+              onClick={() => user ? navigate('/courses') : navigate('/auth')}
+            >
               <Play className="mr-2 h-5 w-5" />
-              Start Learning Now
+              {user ? 'Continue Learning' : 'Start Learning Now'}
             </Button>
             <Button 
               variant="outline" 
               size="lg" 
               className="text-lg px-8 py-6 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
+              onClick={() => navigate('/courses')}
             >
               <BookOpen className="mr-2 h-5 w-5" />
               Browse Courses

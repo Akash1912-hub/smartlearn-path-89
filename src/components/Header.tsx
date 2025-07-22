@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
@@ -20,10 +21,12 @@ import {
   Menu,
   X
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This will be connected to auth later
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -38,9 +41,12 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <a href="#" className="text-sm font-medium transition-colors hover:text-primary">
+          <button 
+            onClick={() => navigate('/courses')}
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
             Courses
-          </a>
+          </button>
           <a href="#" className="text-sm font-medium transition-colors hover:text-primary">
             Instructors
           </a>
@@ -66,7 +72,7 @@ const Header = () => {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          {isLoggedIn ? (
+          {user ? (
             <>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
@@ -81,15 +87,15 @@ const Header = () => {
                 <DropdownMenuTrigger asChild>
                   <Avatar className="h-8 w-8 cursor-pointer">
                     <AvatarImage src="" alt="User" />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/courses')}>
                     <BookOpen className="mr-2 h-4 w-4" />
                     My Courses
                   </DropdownMenuItem>
@@ -98,7 +104,7 @@ const Header = () => {
                     Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsLoggedIn(false)}>
+                  <DropdownMenuItem onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -107,10 +113,10 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Button variant="ghost" onClick={() => setIsLoggedIn(true)}>
+              <Button variant="ghost" onClick={() => navigate('/auth')}>
                 Sign In
               </Button>
-              <Button variant="default" onClick={() => setIsLoggedIn(true)}>
+              <Button variant="default" onClick={() => navigate('/auth')}>
                 Sign Up
               </Button>
             </>
@@ -141,9 +147,12 @@ const Header = () => {
               />
             </div>
             <nav className="space-y-2">
-              <a href="#" className="block py-2 text-sm font-medium transition-colors hover:text-primary">
+              <button 
+                onClick={() => navigate('/courses')}
+                className="block py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
                 Courses
-              </a>
+              </button>
               <a href="#" className="block py-2 text-sm font-medium transition-colors hover:text-primary">
                 Instructors
               </a>
@@ -155,27 +164,27 @@ const Header = () => {
               </a>
             </nav>
             <div className="flex flex-col space-y-2 pt-4 border-t">
-              {isLoggedIn ? (
+              {user ? (
                 <>
-                  <Button variant="ghost" className="justify-start">
+                  <Button variant="ghost" className="justify-start" onClick={() => navigate('/profile')}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </Button>
-                  <Button variant="ghost" className="justify-start">
+                  <Button variant="ghost" className="justify-start" onClick={() => navigate('/courses')}>
                     <BookOpen className="mr-2 h-4 w-4" />
                     My Courses
                   </Button>
-                  <Button variant="ghost" className="justify-start" onClick={() => setIsLoggedIn(false)}>
+                  <Button variant="ghost" className="justify-start" onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" onClick={() => setIsLoggedIn(true)}>
+                  <Button variant="ghost" onClick={() => navigate('/auth')}>
                     Sign In
                   </Button>
-                  <Button variant="default" onClick={() => setIsLoggedIn(true)}>
+                  <Button variant="default" onClick={() => navigate('/auth')}>
                     Sign Up
                   </Button>
                 </>
